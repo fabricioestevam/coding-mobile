@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Almoxarifado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007bff;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .table {
+            margin-top: 20px;
+        }
+        .btn-danger {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+    <div class="container">
+        <h1 class="text-center mb-4">Gestão de Almoxarifado</h1>
+        <a href="artigos.html" class="btn btn-secondary mb-3">Ver Todos os Artigos</a>
+        <div class="mb-3 row">
+            <div class="col-md-3">
+                <input type="text" id="codigo" class="form-control" placeholder="Código do Item" oninput="atualizarDescricao()">
+            </div>
+            <div class="col-md-3">
+                <input type="text" id="item" class="form-control" placeholder="Nome do Item">
+            </div>
+            <div class="col-md-2">
+                <input type="number" id="quantidade" class="form-control" placeholder="Quantidade">
+            </div>
+            <div class="col-md-2">
+                <select id="unidade" class="form-control">
+                    <option value="Kg">Quilo (Kg)</option>
+                    <option value="L">Litro (L)</option>
+                    <option value="Unidade">Unidade</option>
+                    <option value="Metro">Metro (m)</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" onclick="adicionarItem()">Adicionar</button>
+            </div>
+        </div>
+        <table class="table table-bordered table-striped text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Código</th>
+                    <th>Item</th>
+                    <th>Quantidade</th>
+                    <th>Unidade</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="lista">
+                <!-- Artigos serão carregados aqui -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        // Artigos iniciais com estoque zerado
+        const artigos = [
+            {codigo: "001", item: "Papel A4 500 folhas", quantidade: 0, unidade: "Unidade"},
+            {codigo: "002", item: "Caneta Azul", quantidade: 0, unidade: "Unidade"},
+            {codigo: "003", item: "Grampeador", quantidade: 0, unidade: "Unidade"},
+            {codigo: "004", item: "Monitor 24\"", quantidade: 0, unidade: "Unidade"},
+            {codigo: "005", item: "Teclado Mecânico", quantidade: 0, unidade: "Unidade"},
+            {codigo: "006", item: "Arroz 5kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "007", item: "Feijão 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "008", item: "Macarrão 500g", quantidade: 0, unidade: "Kg"},
+            {codigo: "009", item: "Açúcar 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "010", item: "Sal 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "011", item: "Óleo de soja 900ml", quantidade: 0, unidade: "L"},
+            {codigo: "012", item: "Farinha de trigo 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "013", item: "Café 500g", quantidade: 0, unidade: "Kg"},
+            {codigo: "014", item: "Leite 1L", quantidade: 0, unidade: "L"},
+            {codigo: "015", item: "Manteiga 200g", quantidade: 0, unidade: "Kg"},
+            {codigo: "016", item: "Pão de forma 500g", quantidade: 0, unidade: "Kg"},
+            {codigo: "017", item: "Queijo mussarela 500g", quantidade: 0, unidade: "Kg"},
+            {codigo: "018", item: "Presunto 500g", quantidade: 0, unidade: "Kg"},
+            {codigo: "019", item: "Carne bovina 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "020", item: "Frango 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "021", item: "Peixe 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "022", item: "Ovos 12 unidades", quantidade: 0, unidade: "Unidade"},
+            {codigo: "023", item: "Batata 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "024", item: "Cebola 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "025", item: "Tomate 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "026", item: "Alface unidade", quantidade: 0, unidade: "Unidade"},
+            {codigo: "027", item: "Maçã 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "028", item: "Banana 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "029", item: "Laranja 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "030", item: "Uva 500g", quantidade: 0, unidade: "Kg"},
+            {codigo: "031", item: "Melancia unidade", quantidade: 0, unidade: "Unidade"},
+            {codigo: "032", item: "Abacaxi unidade", quantidade: 0, unidade: "Unidade"},
+            {codigo: "033", item: "Pera 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "034", item: "Morango 250g", quantidade: 0, unidade: "Kg"},
+            {codigo: "035", item: "Manga 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "036", item: "Cenoura 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "037", item: "Beterraba 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "038", item: "Pimentão 1kg", quantidade: 0, unidade: "Kg"},
+            {codigo: "039", item: "Refrigerante 2L", quantidade: 0, unidade: "L"},
+            {codigo: "040", item: "Água mineral 1,5L", quantidade: 0, unidade: "L"},
+            {codigo: "041", item: "Suco natural 1L", quantidade: 0, unidade: "L"},
+            {codigo: "042", item: "Cerveja lata 350ml", quantidade: 0, unidade: "L"},
+            {codigo: "043", item: "Vinho garrafa 750ml", quantidade: 0, unidade: "L"},
+            {codigo: "044", item: "Chocolate 100g", quantidade: 0, unidade: "Kg"},
+            {codigo: "045", item: "Biscoito recheado 140g", quantidade: 0, unidade: "Kg"},
+            {codigo: "046", item: "Pipoca 500g", quantidade: 0, unidade: "Kg"},
+            {codigo: "047", item: "Leite condensado 395g", quantidade: 0, unidade: "Kg"},
+            {codigo: "048", item: "Creme de leite 200g", quantidade: 0, unidade: "Kg"},
+            {codigo: "049", item: "Molho de tomate 340g", quantidade: 0, unidade: "Kg"},
+            {codigo: "050", item: "Maionese 500g", quantidade: 0, unidade: "Kg"},
+        ];
+
+        // Função para carregar os itens na tabela
+        function carregarEstoque() {
+            const lista = document.getElementById("lista");
+            lista.innerHTML = ''; // Limpar a lista antes de adicionar os itens
+
+            // Adicionar os artigos com quantidade maior que zero
+            artigos.filter(artigo => artigo.quantidade > 0).forEach(artigo => {
+                let linha = lista.insertRow();
+                linha.insertCell(0).innerText = artigo.codigo;
+                linha.insertCell(1).innerText = artigo.item;
+                linha.insertCell(2).innerText = artigo.quantidade;
+                linha.insertCell(3).innerText = artigo.unidade;
+                let botaoRemover = document.createElement("button");
+                botaoRemover.innerText = "Remover";
+                botaoRemover.classList.add("btn", "btn-danger", "btn-sm");
+                botaoRemover.onclick = function() {
+                    removerItem(artigo.codigo);
+                };
+                linha.insertCell(4).appendChild(botaoRemover);
+            });
+        }
+
+        // Função para adicionar um item no estoque
+        function adicionarItem() {
+            let codigo = document.getElementById("codigo").value;
+            let item = document.getElementById("item").value;
+            let quantidade = parseInt(document.getElementById("quantidade").value);
+            let unidade = document.getElementById("unidade").value;
+
+            if (codigo && item && quantidade > 0) {
+                let artigoExistente = artigos.find(artigo => artigo.codigo === codigo);
+                if (artigoExistente) {
+                    artigoExistente.quantidade += quantidade;
+                } else {
+                    artigos.push({codigo, item, quantidade, unidade});
+                }
+                carregarEstoque();
+            }
+        }
+
+        // Função para remover um item do estoque
+        function removerItem(codigo) {
+            let index = artigos.findIndex(a => a.codigo === codigo);
+            if (index !== -1) {
+                artigos.splice(index, 1);
+                carregarEstoque();
+            }
+        }
+
+        // Função para atualizar a descrição do item ao inserir o código
+        function atualizarDescricao() {
+            let codigo = document.getElementById("codigo").value;
+            let artigo = artigos.find(a => a.codigo === codigo);
+            if (artigo) {
+                document.getElementById("item").value = artigo.item;
+            }
+        }
+
+        // Carregar o estoque ao iniciar a página
+        carregarEstoque();
+    </script>
+</body>
+</html>
